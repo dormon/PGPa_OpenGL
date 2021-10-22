@@ -1,0 +1,126 @@
+\begin{frame}[fragile]
+\frametitle{Program branching, functionality switching}
+  \begin{itemize}
+    \item Graphics application contains a lot of different effects (bump mapping, shadows, paralax mapping, ...)
+    \item Different effects require different shaders.
+    \item Functionality switching can be performed on different levels.
+    \item Switching program path using uniform variable.
+    \item Subroutines switching
+    \item Shader program pipelines switching
+    \item Shader program switching
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Functionality switching - uniformn variables}
+  The fastest functionality switch can be performed directly inside shader.
+  However, there is per-invocation overhead.
+  For example, vertex shader has to evaluate condition for every vertex (thread divergence).
+    {\scriptsize
+    \begin{minted}[frame=lines]{glsl}
+#version 430
+uniform uint method;
+void main(){
+  switch(method){
+    case 1:
+      normalMapping(...);
+      break;
+    case 2:
+      paralaxMapping(...);
+      break;
+    case 3:
+      ...
+  }
+}
+    \end{minted}
+    }
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Functionality switching - subroutines}
+  It is the second fastest functionality switch. It is function pointer switching.
+    {\tiny
+    \begin{minted}[frame=lines]{glsl}
+#version 440
+
+layout(location=0)out vec4 fColor;
+
+subroutine vec4 getColorSubroutine();
+subroutine vec4 rotateColorSubroutine(vec4);
+
+subroutine (getColorSubroutine) vec4 redColor(){return vec4(1,0,0,1);}
+subroutine (getColorSubroutine) vec4 greenColor(){return vec4(0,1,0,1);}
+
+subroutine (rotateColorSubroutine) vec4 rotate1Left (vec4 c){return c.yzwx;}
+subroutine (rotateColorSubroutine) vec4 rotate2Left (vec4 c){return c.zwxy;}
+subroutine (rotateColorSubroutine) vec4 rotate3Left (vec4 c){return c.wxyz;}
+subroutine (rotateColorSubroutine) vec4 reverse     (vec4 c){return c.wzyx;}
+
+subroutine uniform getColorSubroutine    getColor;//fce pointer
+subroutine uniform rotateColorSubroutine rotateColor[3];//array of fce pointers
+
+uniform uint rotateIndex=0;
+
+void main(){
+  fColor=rotateColor[rotateIndex](getColor());
+}
+    \end{minted}
+    }
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Functionality switching - subroutines}
+    {\tiny
+    \begin{minted}[frame=lines]{c++}
+//all subroutines
+GLuint sl0=glGetSubroutineIndex(program,GL_FRAGMENT_SHADER,"redColor");
+GLuint sl1=glGetSubroutineIndex(program,GL_FRAGMENT_SHADER,"greenColor");
+GLuint sl2=glGetSubroutineIndex(program,GL_FRAGMENT_SHADER,"rotate1Left");
+GLuint sl3=glGetSubroutineIndex(program,GL_FRAGMENT_SHADER,"rotate2Left");
+GLuint sl4=glGetSubroutineIndex(program,GL_FRAGMENT_SHADER,"rotate3Left");
+GLuint sl5=glGetSubroutineIndex(program,GL_FRAGMENT_SHADER,"reverse");
+
+//uniform offsets for subroutines
+GLuint sul0=glGetSubroutineUniformLocation(program,GL_FRAGMENT_SHADER,"getColor");
+GLuint sul1=glGetSubroutineUniformLocation(program,GL_FRAGMENT_SHADER,"rotateColor");
+
+glUseProgram(program);
+//list of all slots for subroutines
+GLuint sl[4];
+sl[sul0+0]=sl1;
+sl[sul1+0]=sl5;
+sl[sul1+1]=sl2;
+sl[sul1+2]=sl3;
+glUniformSubroutinesuiv(GL_FRAGMENT_SHADER,4,sl);
+    \end{minted}
+    }
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Functionality switching - pipelines}
+\begin{itemize}
+  \item Program pipelines can be used for shader stage switching (vertex,fragment,geometry,...).
+  \item Inputs and outputs of stages has to match, they will not be checked.
+  \item Pipeline switching is cheaper that program switching.
+  \item It is usefull in situation where there is a lot of similar shader programs.
+\end{itemize}
+{\tiny
+  \begin{minted}[frame=lines]{c++}
+GLuint vs,gs,fs;
+//This function creates shader program that contains only one shader stage.
+vs=glCreateShaderProgramv(GL_VERTEX_SHADER,1,&vstext);
+fs=glCreateShaderProgramv(GL_FRAGMENT_SHADER,1,&fstext);
+//...
+
+GLuint pipeline;
+glGenPipelines(1,&pipeline);
+glBindPipelines(pipeline);
+
+//...
+glUseProgramStages(pipeline,GL_VERTEX_SHADER_BIT,vs);
+glUseProgramStages(pipeline,GL_GEOMETRY_SHADER_BIT,program);//select geometry shader from shader program
+glUseProgramStages(pipeline,GL_FRAGMENT_SHADER_BIT,fs);
+  \end{minted}
+}
+\end{frame}
+

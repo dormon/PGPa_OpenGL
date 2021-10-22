@@ -1,0 +1,206 @@
+\bluepage{Video player in OpenGL}
+
+\begin{frame}[fragile]
+  \frametitle{Playing video in OpenGL}
+  \begin{itemize}
+    \item A window has to be created using 3th party libraries (SDL2, GLUT, Qt).
+    \item A video has to be decoded outside of OpenGL using other libraries (OpenCV, ffmpeg, ...).
+    \item Current frame has to be stored in OpenGL texture or buffer in GPU memory.
+    \item A precise time has to be used for correct synchronisation of video frames and rendering frames (std::chrono).
+    \item A shader program has to contain some king of fullscreen quad program.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{SDL2 Window}
+  OpenGL requires a rendering context.
+  There are 3 main context parameters (version, profile and flags) that can be set using SDL2.
+  {\scriptsize
+  \begin{minted}[frame=lines]{c++}
+SDL_Init(SDL_INIT_VIDEO);//init. video
+this->_window = SDL_CreateWindow("sdl2",0,0,width,heigth,
+    SDL_WINDOW_OPENGL|SDL_WINDOW_SHOWN);
+
+unsigned profile = SDL_GL_CONTEXT_PROFILE_CORE;//context profile
+unsigned flags   = SDL_GL_CONTEXT_DEBUG_FLAG;//context flags
+SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK ,profile         );
+SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS        ,flags           );
+
+
+std::vector<uint32_t>versions={450,440,430,420,410,400,330};
+for(auto x:versions){
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, x/100    );
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION,(x%100)/10);
+  this->_context = SDL_GL_CreateContext(this->_window);//create context
+  if(this->_context!=nullptr)break;
+}
+
+glewInit();//initialisation of gl* functions
+  \end{minted}
+  }
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{OpenCV video decoding}
+  OpenCV library has a lot of functions that deals with images and videos.
+  cv::VideoCapture object is able to open video and load frames.
+  {\scriptsize
+  \begin{minted}[frame=lines]{c++}
+#include<opencv2/core/core.hpp>
+#include<opencv2/highgui/highgui.hpp>
+
+class Video{
+  protected:
+    cv::Mat bgr_frame;
+    cv::VideoCapture _video;
+    ...
+};
+
+Video::Video(std::string fileName){
+  this->_opened=this->_video.open(fileName);
+  if(!this->_opened){...}
+  this->_frameCount = this->_video.get(CV_CAP_PROP_FRAME_COUNT);
+  this->_fps        = this->_video.get(CV_CAP_PROP_FPS);
+  this->_width      = this->_video.get(CV_CAP_PROP_FRAME_WIDTH);
+  this->_height     = this->_video.get(CV_CAP_PROP_FRAME_HEIGHT);
+}
+//read current frame and move to next
+void* Video::getData(){
+  ...
+  if(this->_video.read(bgr_frame))return nullptr;
+  return this->bgr_frame.data;
+  ...
+}
+  \end{minted}
+  }
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Precise timers in std::chrono}
+  std::chrono - C++ std library that provides high precise timers.
+  {\scriptsize
+  \begin{minted}[frame=lines]{c++}
+#include<chrono>
+#include<ctime>
+
+template<typename TYPE>
+class Timer{
+  protected:
+    std::chrono::time_point<std::chrono::high_resolution_clock>_start;
+    std::chrono::time_point<std::chrono::high_resolution_clock>_last ;
+  public:
+    Timer(){
+      this->reset();
+    }
+    void reset(){
+      this->_start = std::chrono::high_resolution_clock::now();
+      this->_last  = this->_start;
+    }
+    TYPE elapsedFromStart(){
+      auto newTime = std::chrono::high_resolution_clock::now();
+      std::chrono::duration<TYPE> elapsed = newTime - this->_start;
+      this->_last = newTime;
+      return elapsed.count();
+    }
+    ...
+};
+  \end{minted}
+  }
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Video frame loading into texture}
+  Video frames and window frames has to be correctly synchronized.
+  {\scriptsize
+  \begin{minted}[frame=lines]{c++}
+void draw(Data*data){
+  glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+
+  ...
+  float  newTime = data->timer.elapsedFromStart();
+  if((newTime-data->lastFrameTime)>1./data->video->getFps()){
+    if(data->running){
+      glBindTexture(GL_TEXTURE_2D,data->frame->getId());
+      glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,
+        data->video->getWidth(),
+        data->video->getHeight(),0,
+        GL_BGR,GL_UNSIGNED_BYTE,data->video->getData());
+      glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+      glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+      data->lastFrameTime = newTime;
+    }
+  }
+
+  ...
+}
+  \end{minted}
+  }
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+\frametitle{Fullscreen quad}
+  In order to render a frame, there has to be textured rectangle.
+  There are many ways of creating of rectangle (buffers, geometry shaders, vertex shaders,...).
+  The simplest way employ vertex shaders.
+  {\scriptsize
+  \begin{minted}[frame=lines]{glsl}
+#version 450
+
+//texture coordinates
+out vec2 vCoord;
+
+void main(){
+  //compute texture coordinates using gl_VertexID
+  vec2 coord = vec2(gl_VertexID%2,gl_VertexID/2);
+
+  //compute clips space vertex positions
+  gl_Position = vec4(-1+2*coord,1,1.);
+
+  //send texture coordinates to fragment shader
+  vCoord = vec2(coord.x,1-coord.y);
+}
+  \end{minted}
+  }
+  {\scriptsize
+  \begin{minted}[frame=lines]{c++}
+//invocate vertex shader 4 times and construct triangle strip
+glDrawArrays(GL_TRIANGLE_STRIP,0,4);
+  \end{minted}
+  }
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Fullscreen quad}
+  {\scriptsize
+  \begin{minted}[frame=lines]{glsl}
+#version 450
+
+//output for color
+layout(location=0)out vec4 fColor;
+
+//texture
+layout(binding=0)uniform sampler2D frame;
+
+//texture coordinates
+in vec2 vCoord;
+
+void main(){
+  //address texture and return color
+  fColor = texture(frame,vCoord);
+}
+  \end{minted}
+  }
+  {\scriptsize
+  \begin{minted}[frame=lines]{c++}
+//active texture unit 0
+glActiveTexture(GL_TEXTURE0);
+
+//bind texture frame to texture unit 0
+glBindTexture(GL_TEXTURE_2D,frame);
+  \end{minted}
+  }
+\end{frame}
+
+

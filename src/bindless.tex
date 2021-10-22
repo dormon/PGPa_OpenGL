@@ -1,0 +1,100 @@
+\begin{frame}[fragile]
+\frametitle{Bindless textures}
+  \begin{itemize}
+    \item We often need to draw a lot of objects with different textures.
+    \item This leads to texture switching in between draw commands and to greater number of draw commands.
+    \item Texture binding is not cheap and there is limited number of texture units.
+    \item Texture atlas has its own problems (mipmapping, color bleeding, ...)
+    \item There is an extension: \textcolor{blue}{ARB\_bindless\_texture} that solves a lot of problems
+    \item This extension allows shader to switch textures directly.
+    \item Textures are not explicitely bind to any texture unit.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Bindless textures - handles}
+{\scriptsize
+\begin{minted}[bgcolor=bg]{packages/c_cpp.py:CppLexer -x}
+#define MAX_TEXTURES 512
+GLuint textures[MAX_TEXTURES];//list of textures
+glCreateTextures(GL_TEXTURE_2D,MAX_TEXTURES,textures);//create textures
+for(unsigned i=0;i<MAX_TEXTURES;++i){//loop over textures
+  glTextureStorage2D(textures[i],1,GL_RGBA32F,1024,1024);//texture allocation
+  glTextureSubImage2D(textures[i],0,0,0,1024,1024,
+    GL_RGBA,GL_UNSIGNED_BYTE,data[i]);//data upload
+  ...
+  
+}
+\end{minted}
+}
+{\scriptsize
+\begin{minted}[bgcolor=bg]{packages/c_cpp.py:CppLexer -x}
+GLuint64 handles[MAX_TEXTURES];//list of handles to textures
+for(unsigned i=0;i<MAX_TEXTURES;++i){
+  handles[i]=glGetTextureHandleARB(textures[i]);
+  glMakeTextureHandleResidentARB(handles[i]);
+}
+\end{minted}
+}
+{\scriptsize
+\begin{minted}[bgcolor=bg]{packages/c_cpp.py:CppLexer -x}
+glProgramUniformHandleui64vARB(
+    programId,//program id
+    uniformLocation,//location of uniform variable
+    MAX_TEXTURES,//number of handles
+    handles);//handles
+\end{minted}
+}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Bindless textures - vertex shader}
+{\scriptsize
+\begin{minted}[bgcolor=bg]{packages/graphics.py:GLShaderLexer -x}
+#version 440 core
+
+#extension GL_ARB_bindless_texture : require
+
+#define MAX_TEXTURES 512
+
+layout(bindless_sampler)uniform sampler2D textures[MAX_TEXTURES];
+flat out sampler2D sampler;
+
+struct Material{
+  uint  textureId;
+  vec3  color;
+};
+
+layout(std430,binding=0)buffer MaterialArray{Material materials[];};
+
+layout(location=3) in uint materialID;
+
+void main(){
+  sampler = textures[materials[materialID]];
+  gl_Position=...;
+}
+\end{minted}
+}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Bindless textures - fragment shader}
+{\scriptsize
+\begin{minted}[bgcolor=bg]{packages/graphics.py:GLShaderLexer -x}
+#version 440 core
+
+#extension GL_ARB_bindless_texture : require
+
+layout(location=0)out vec4 fColor;
+
+flat in sampler2D sampler;
+
+in vec2 vTexCoord;
+
+void main(){
+  fColor=texture(sampler,vTexCoord);
+}
+\end{minted}
+}
+\end{frame}
+

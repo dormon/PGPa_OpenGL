@@ -1,0 +1,100 @@
+\begin{frame}[fragile]
+\frametitle{Kompletní příklad tvorba hier. z-bufferu}
+  \begin{itemize}
+    GLSL - CreateHierarchy:
+    {\tiny
+    \begin{minted}[frame=lines]{glsl}
+    //vertex shader////////////////////////////////////////////////////////////
+    #version 430
+    void main(){
+      gl_Position=vec4(0);
+    }
+    //geometry shader//////////////////////////////////////////////////////////
+    #version 430
+    layout(points)in;
+    layout(triangle_strip,max_vertices=4)out;
+    void main(){
+      gl_Position=vec4(-1,-1,0,1);EmitVertex();
+      gl_Position=vec4(+1,-1,0,1);EmitVertex();
+      gl_Position=vec4(-1,+1,0,1);EmitVertex();
+      gl_Position=vec4(+1,+1,0,1);EmitVertex();
+    }
+    //fragment shader///////////////////////////////////////////////////////////
+    #version 430
+    layout(binding=0)uniform sampler2D Last;//last mipmap
+    layout(location=0)out vec2 fDepth;//output depth
+    ivec2 Coord=ivec2(gl_FragCoord.xy);//coordinates
+    void main(void){
+      vec2 A=texelFetch(Last,Coord*2+ivec2(0,0),0).xy;
+      vec2 B=texelFetch(Last,Coord*2+ivec2(1,0),0).xy;
+      vec2 C=texelFetch(Last,Coord*2+ivec2(0,1),0).xy;
+      vec2 D=texelFetch(Last,Coord*2+ivec2(1,1),0).xy;
+      fDepth=vec2(min(min(A.x,B.x),min(C.x,D.x)),max(max(A.y,B.y),max(C.y,D.y)));
+    }
+    \end{minted}
+    }
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Kompletní příklad tvorba hier. z-bufferu}
+  \begin{itemize}
+    Aplikace - inicializace:
+    {\scriptsize
+    \begin{minted}[frame=lines]{c++}
+    glGenTextures(1,&Depth);
+    //textura obsahujici minimalni a maximalni hloubku
+    glBindTexture(GL_TEXTURE_2D,Depth);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST_MIPMAP_NEAREST);
+    int Size=WSize;
+    int Level=0;
+    while(Size>0){//smycka pres levely
+      glTexImage2D(GL_TEXTURE_2D,Level++,GL_RG32F,Size,Size,0,GL_RG,
+        GL_FLOAT,NULL);//alokace vrstvy
+      Size/=2;
+    }
+    //render buffer s hloubkou
+    glGenRenderbuffers(1,&RBO_Depth);
+    glBindRenderbuffer(GL_RENDERBUFFER,RBO_Depth);
+    glRenderbufferStorage(GL_RENDERBUFFER,GL_DEPTH_COMPONENT,WSize,WSize);
+
+    glGenFramebuffers(1,&FBO);//vygenerujeme nazev pro FBO
+    \end{minted}
+    }
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Kompletní příklad tvorba hier. z-bufferu}
+  \begin{itemize}
+    Aplikace - render2 - tvorba hierarchie:
+    {\tiny
+    \begin{minted}[frame=lines]{c++}
+    glUseProgram(CreateHierarchy);
+    int Level=1;
+    int ActSize=WSize/2;
+    glBindFramebuffer(GL_FRAMEBUFFER,HFBO);//bind framebuffer
+    glActiveTexture(GL_TEXTURE0);//activate tex. unit 0
+    glBindTexture(GL_TEXTURE_2D,Depth);//bind depth texture to tex. unit 0
+    while(ActSize>0){//while there are
+      glViewport(0,0,ActSize,ActSize);//set viewport
+      glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_BASE_LEVEL,Level-1);//starting mipmap level
+      glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAX_LEVEL,Level-1);//max mipmap level
+      glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,Depth,Level);
+      GLenum DrawBuffers[]={GL_COLOR_ATTACHMENT0};
+      glDrawBuffers(1,DrawBuffers);
+      glDrawArrays(GL_POINTS,0,1);
+      Level++;//increment level of mipmap
+      ActSize/=2;//actual size of mipmap
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER,0);//unbind framebffer
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);//starting mipmap level
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, Level-1);//max mipmap level
+    glViewport(0,0,WSize,WSize);//reset viewport
+    \end{minted}
+    }
+  \end{itemize}
+\end{frame}
+
+

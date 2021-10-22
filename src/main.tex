@@ -1,0 +1,86 @@
+
+%\documentclass[11pt]{beamer}
+\documentclass[12pt,xcolor=pdflatex,dvipsnames,table]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage[czech]{babel}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{array}
+\usepackage{stmaryrd}
+\usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage{listings}
+\usepackage{fancyvrb}
+\usepackage{minted}
+
+
+
+\theoremstyle{definition}
+\newtheorem{indefinition}{Definition}
+
+\theoremstyle{example}
+\newtheorem{inexample}{Example}
+
+\theoremstyle{denotation}
+\newtheorem{indenotation}{Denotation}
+
+\theoremstyle{theorem}
+\newtheorem{intheorem}{Theorem}
+
+%\title{Strukturni rozpoznávání, extrakce a analýza příznaků z textur}
+\title{Pokročilá práce se shadery, Bindless Textury, DSA, Teselace, Compute Shader}
+\institute[VUT FIT]{Ústav počítačové grafiky a multimédií\\Fakulta informačních technologií\\Vysoké učení technické Brno}
+\author[Tomáš Milet]{Tomáš Milet}
+\date{\today}
+
+\mode<presentation>
+{
+    \usetheme{FIT}
+}
+
+\begin{document}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+\input{vbo}
+\input{vao}
+\input{draw_call}
+\input{bindless}
+\input{fbo}
+\input{dsa}
+\input{swap}
+\input{geometry}
+\input{transformfeedback}
+\input{tessellation}
+\input{load_store}
+\input{atomic_counter}
+\input{compute}
+\input{queries_debug}
+
+
+
+\begin{frame}
+\frametitle{Zdroje informací}
+    \begin{itemize}
+    \item \url{https://www.opengl.org/sdk/docs/man/}
+    \item \url{www.khronos.org/files/opengl45-quick-reference-card.pdf}
+		\item \url{http://www.opengl.org/documentation/glsl/}
+    \item \url{http://www.geeks3d.com/20140321/opengl-approaching-zero-driver-overhead/}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Konec}
+    \begin{center}
+    Děkuji za pozornost\\
+    \vspace{10 mm}
+    Otázky?
+    \end{center}
+\end{frame}
+
+\end{document}
+
+

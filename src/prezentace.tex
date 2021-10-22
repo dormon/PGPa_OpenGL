@@ -1,0 +1,68 @@
+\documentclass[10pt,xcolor=pdflatex,dvipsnames,table]{beamer}
+\usepackage{newcent}
+\usepackage[utf8]{inputenc}
+\usepackage[czech]{babel}
+\usepackage{hyperref}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{array}
+\usepackage{stmaryrd}
+\usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage{listings}
+\usepackage{fancyvrb}
+\usepackage{minted}
+\usetheme{FIT}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\title[OpenGL]{Advanced OpenGL}
+
+\author[]{Tomáš Milet}
+
+\institute[]{Brno University of Technology, Faculty of Information Technology\\
+Bo\v{z}et\v{e}chova 1/2. 612 66 Brno - Kr\'alovo Pole\\
+imilet@fit.vutbr.cz}
+
+%\date{January 1, 2016}
+\date{\today}
+%\date{} % bez data
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\frame[plain]{\titlepage}
+
+%\input{opengl}
+%\input{video}
+%\input{filter}
+
+\input{vbo}
+\input{primitive_restart_index.tex}
+\input{vao}
+\input{draw_call}
+\input{bindless}
+\input{fbo}
+\input{dsa}
+\input{swap}
+\input{geometry}
+\input{transformfeedback}
+\input{tessellation}
+\input{load_store}
+\input{atomic_counter}
+\input{compute}
+\input{queries_debug}
+
+\begin{frame}
+  \frametitle{References}
+  \begin{itemize}
+    \item \url{http://www.opengl.org/sdk/docs/}
+    \item \url{http://www.opengl.org/documentation/glsl/}
+    \item \url{https://wiki.libsdl.org/FrontPage}
+  \end{itemize}
+\end{frame}
+
+\bluepage{Thank you for your attention! \vspace{10 mm} Questions?}
+
+\end{document}

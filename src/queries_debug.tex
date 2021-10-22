@@ -1,0 +1,156 @@
+\begin{frame}
+\frametitle{Queries}
+	\begin{itemize}
+	\item Queries can be used to obtain some information about drawing.
+	\item Number of rasterized samples.
+	\item Number of generated primitives.
+	\item Time of execution of commands.
+	\item Conditional rendering - occlusion culling
+	\end{itemize}
+	{\scriptsize
+	\mint[frame=lines]{c++}|void glGenQueries(GLsizei n,GLuint * ids);|
+	\mint[frame=lines]{c++}|void glBeginQuery(GLenum target,GLuint id);|
+	\mint[frame=lines]{c++}|void glEndQuery(GLenum target,GLuint id);|
+	\mint[frame=lines]{c++}|void glGetQueryiv(GLenum target,GLuint id,GLint * params);|
+	}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Queries - time example}
+	{\scriptsize
+	\begin{minted}[frame=lines]{c++}
+//init
+GLuint QueryTime;//query
+glGenQueries(1,&QueryTime);//nagenerujeme si ID query
+GLuint QueryTimePassed=0;//cas v nanosekundach
+
+//start query
+glBeginQuery(GL_TIME_ELAPSED,QueryTime);
+
+//commands
+//glBindBuffer(...);
+//glUseProgram(...);
+//glDrawArrays(...);
+//...
+
+//end query
+glEndQuery(GL_TIME_ELAPSED);//vypneme query
+
+//get data from asychronous  query
+glGetQueryObjectuiv(QueryTime,GL_QUERY_RESULT_NO_WAIT,&QueryTimePassed);
+	\end{minted}
+	}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Queries - conditional rendering example}
+	{\scriptsize
+	\begin{minted}[frame=lines]{c++}
+//init
+GLuint QuerySample;//query
+glGenQueries(1,&QueryTime);//nagenerujeme si ID query
+
+//draw bounding boxes
+//start query
+glBeginQuery(GL_ANY_SAMPLES_PASSED,QuerySample);
+//draw bounding boxes 
+//glBindBuffer(...);
+//glUseProgram(...);
+//glDrawArrays(...);
+//...
+glEndQuery(GL_ANY_SAMPLES_PASSED);//vypneme query
+
+//conditional rendering
+//start conditional rendering
+glBeginConditionalRender(QuerySample,GL_QUERY_NO_WAIT);
+//draw meshes with full details
+//glBindBuffer(...);
+//glUseProgram(...);
+//glDrawArrays(...);
+//...
+glEndConditionalRender();//end conditional rendering
+	\end{minted}
+	}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Synchronization objects, fences}
+  \begin{itemize}
+    \item Synchronization between OpenGL commands.
+    \item Host synchronization, client synchronization.
+  \end{itemize}
+	{\scriptsize
+	\begin{minted}[frame=lines]{c++}
+GLsync sync;//synchronization object
+glDispatchCompute(...);
+sync=glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE,0);
+glClientWaitSync(sync,0,GL_TIMEOUT_IGNORED);//CPU waits
+//...
+glDeleteSync(sync);
+	\end{minted}
+	}
+	{\scriptsize
+	\begin{minted}[frame=lines]{c++}
+GLsync sync;//synchronization object
+glDispatchCompute(...);
+sync=glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE,0);
+glWaitSync(sync,0,GL_TIMEOUT_IGNORED);//GPU waits
+//...
+glDeleteSync(sync);
+	\end{minted}
+	}
+	{\scriptsize
+	\begin{minted}[frame=lines]{c++}
+glFlush();
+glFinish();
+ 	\end{minted}
+	}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Debug}
+	\begin{itemize}
+	\item OpenGL exposes commands for debugging.
+	\item User can define custom messages, callbacks, ...
+	\item Old way: \textcolor{blue}{glGetError}
+	\item OpenGL debugging is supported in debug OpenGL context
+	\end{itemize}
+	{\scriptsize
+	\mint[frame=lines]{c++}|void glDebugMessageCallback(DEBUGPROC callback,void * userParam);|
+	\mint[frame=lines]{c++}|void glDebugMessageControl(GLenum,GLenum,GLenum,GLsizei,const GLuint*,...);|
+	\mint[frame=lines]{c++}|void glDebugMessageInsert(GLenum,GLenum,GLuint,GLenum,GLsizei,const char*);|
+	}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Debugging - example}
+	{\scriptsize
+	\begin{minted}[frame=lines]{c++}
+//create window using SDL2
+SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER);//init. video
+SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION,4);
+SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION,3);
+SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
+  SDL_GL_CONTEXT_PROFILE_CORE);
+//set debug context
+SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS,SDL_GL_CONTEXT_DEBUG_FLAG);
+SDL_CreateWindow("OpenGL s debug kontextem",SDL_WINDOWPOS_CENTERED,
+  SDL_WINDOWPOS_CENTERED,1024,768,
+  SDL_WINDOW_OPENGL|SDL_WINDOW_SHOWN|SDL_WINDOW_FULLSCREEN);
+\end{minted}
+}
+{\scriptsize
+\begin{minted}[frame=lines]{c++}
+//custom callback
+void MyDebug(GLenum Source,GLenum Type,GLuint Id,GLenum severity,
+  GLsizei Length,const GLchar*Message,void*UserParam){
+    std::cerr<<"MyDebug: "<<Message<<std::endl;
+}
+
+glEnable(GL_DEBUG_OUTPUT);//enable debugging
+glDebugMessageCallback(MyDebug,NULL);//set callback
+	\end{minted}
+	}
+\end{frame}
+
