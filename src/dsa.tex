@@ -1,3 +1,5 @@
+\bluepage{Direct State Access}
+
 \begin{frame}[fragile]
 \frametitle{Direct State Access}
 	\begin{figure}[h]
@@ -39,54 +41,54 @@
 \begin{frame}[fragile]
   \frametitle{Direct State Access - examples}
     Bind to modify:
-    {\scriptsize
-    \begin{minted}[frame=lines]{c++}
+{\scriptsize
+\begin{minted}[bgcolor=bg]{packages/c_cpp.py:CppLexer -x}
 GLint old;
 glGenRenderbuffers(1,&RBO);
 glGetIntegerv(GL_RENDERBUFFER_BINDING,&old);
 glBindRenderbuffer(GL_RENDERBUFFER,RBO);
 glRenderbufferStorage(GL_RENDERBUFFER,internalFormat,width,height);
 glBindRenderbuffer(GL_RENDERBUFFER,old);
-    \end{minted}
-    }
+\end{minted}
+}
     Direct state access:
-    {\scriptsize
-    \begin{minted}[frame=lines]{c++}
+{\scriptsize
+\begin{minted}[bgcolor=bg]{packages/c_cpp.py:CppLexer -x}
 glCreateRenderbuffers(1,&RBO);
 glNamedRenderbufferStorage(RBO,internalFormat,width,height);
-    \end{minted}
-    }
+\end{minted}
+}
 \end{frame}
 
 \begin{frame}[fragile]
   \frametitle{Direct State Access - examples}
     Bind to modify:
-    {\scriptsize
-    \begin{minted}[frame=lines]{c++}
+{\scriptsize
+\begin{minted}[bgcolor=bg]{packages/c_cpp.py:CppLexer -x}
 glBindFramebuffer(GL_READ_FRAMEBUFFER,fbo);
 glBindFramebuffer(GL_DRAW_FRAMEBUFFER,0);
 glBlitFramebuffer(0,0,width,height,0,0,width,height,
   GL_COLOR_BUFFER_BIT,GL_NEAREST);
-    \end{minted}
-    }
+\end{minted}
+}
     Direct state access:
-    {\scriptsize
-    \begin{minted}[frame=lines]{c++}
+{\scriptsize
+\begin{minted}[bgcolor=bg]{packages/c_cpp.py:CppLexer -x}
 glBlitNamedFramebuffer(fbo,0,0,0,width,height,0,0,width,height,
   GL_COLOR_BUFFER_BIT,GL_NEAREST);
-    \end{minted}
-    }
+\end{minted}
+}
 \end{frame}
 
 \begin{frame}[fragile]
   \frametitle{Direct State Access - confusion}
   \begin{itemize}
-    \item Some OpenGL action have 2 or even 3 alternative commands.
-    \item A lot of functions is redundant.
-    \item Confusion in texture, vao commands
+    \item Some OpenGL functions have 2 or even 3 alternative commands.
+    \item A lot of functions are redundant.
+    \item Confusion in texture, framebuffer, vao commands
   \end{itemize}
-    {\tiny
-    \begin{minted}[frame=lines]{c++}
+{\tiny
+\begin{minted}[bgcolor=bg]{packages/c_cpp.py:CppLexer -x}
 glFramebufferTexture
 glFramebufferTexture1D;
 glFramebufferTexture2D;
@@ -94,21 +96,21 @@ glFramebufferTexture3D;
 glFramebufferTextureLayer;
 glNamedFramebufferTexture;
 glNamedFramebufferTextureLayer;
-    \end{minted}
-    }
-    {\tiny
-    \begin{minted}[frame=lines]{c++}
+\end{minted}
+}
+{\tiny
+\begin{minted}[bgcolor=bg]{packages/c_cpp.py:CppLexer -x}
 glVertexArrayBindingDivisor
 glVertexAttribDivisor
 glVertexBindingDivisor
-    \end{minted}
-    }
-    {\tiny
-    \begin{minted}[frame=lines]{c++}
+\end{minted}
+}
+{\tiny
+\begin{minted}[bgcolor=bg]{packages/c_cpp.py:CppLexer -x}
 glTexImage2D
 glTexStorage2D
 glTextureStorage2D
-    \end{minted}
-    }
+\end{minted}
+}
 \end{frame}
 

@@ -1,3 +1,5 @@
+\bluepage{Compute Shaders}
+
 \begin{frame}
 \frametitle{Compute Shader}
 	\begin{itemize}
@@ -19,8 +21,8 @@
 
 \begin{frame}[fragile]
 \frametitle{Compute Shader - example}
-	{\scriptsize
-	\begin{minted}[frame=lines]{glsl}
+{\scriptsize
+\begin{minted}[bgcolor=bg]{packages/graphics.py:GLShaderLexer -x}
 #version 430
 
 layout(binding=0)buffer Input{vec4 i[];};//input buffer
@@ -36,14 +38,14 @@ void main(){
   vec3 v = i[gid].xyz;
   o[gid] = vec4(normalize(v),length(v));
 }
-	\end{minted}
-	}
+\end{minted}
+}
 \end{frame}
 
 \begin{frame}[fragile]
 \frametitle{Compute Shader - example}
-	{\scriptsize
-	\begin{minted}[frame=lines]{c++}
+{\scriptsize
+\begin{minted}[bgcolor=bg]{packages/c_cpp.py:CppLexer -x}
 uint32_t num=100;
 GLuint CompBufferInput;
 glCreateBuffers(1,&CompBufferInput);
@@ -62,8 +64,8 @@ glUniform1ui(glGetUniformLocation(ComputeShader,"num"),num);
 uint32_t workGroupSize = 32;
 
 glDispatchCompute(divRoundUp(num,workGroupSize),1,1);
-	\end{minted}
-	}
+\end{minted}
+}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -73,8 +75,8 @@ glDispatchCompute(divRoundUp(num,workGroupSize),1,1);
     \item Synchronization is performed using glMemoryBarrier(); command.
   \end{itemize}
 
-	{\scriptsize
-	\begin{minted}[frame=lines]{c++}
+{\scriptsize
+\begin{minted}[bgcolor=bg]{packages/c_cpp.py:CppLexer -x}
 //This compute shader creates buffer with vertices.
 glDispatchCompute(
     this->TileCount[(this->NumLevels-2)*2+0],
@@ -86,8 +88,8 @@ glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
 //Draw generated vertices
 glDrawArrays(...)
-	\end{minted}
-	}
+\end{minted}
+}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -102,8 +104,8 @@ glDrawArrays(...)
     \item A barrier command stops every thread until all other threads in work-group reach it.
   \end{itemize}
   Example:
-	{\scriptsize
-	\begin{minted}[frame=lines]{glsl}
+{\scriptsize
+\begin{minted}[bgcolor=bg]{packages/graphics.py:GLShaderLexer -x}
 layout(std430,binding=0)readonly buffer SFData{float data[];};
 shared float array[size];
 void main(){
@@ -113,7 +115,7 @@ void main(){
   barrier();
   //...
 }
-	\end{minted}
-	}
+\end{minted}
+}
 \end{frame}
 

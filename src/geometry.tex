@@ -1,3 +1,5 @@
+\bluepage{Geometry Shaders}
+
 \begin{frame}[fragile]
 \frametitle{Geometry shader}
 	\begin{itemize}
@@ -15,20 +17,20 @@
 \frametitle{Geometry shader - inputs/outputs}
 	\begin{itemize}
 	\item Type of inputs and outputs has to be specified inside geometry shader.
-	{\scriptsize
-	\begin{minted}[frame=lines]{glsl}
+{\scriptsize
+\begin{minted}[bgcolor=bg]{packages/graphics.py:GLShaderLexer -x}
 layout(points,invocations=N)in;//input primitive will be point.
 //points, lines, lines_adjacency, triangles, triangles_adjacency
 //geometry shader will be executed N times on each point.
-	\end{minted}
-	}
+\end{minted}
+}
 	\item Type of output primitive and number of output vertices has to be specified.
-	{\scriptsize
-	\begin{minted}[frame=lines]{glsl}
+{\scriptsize
+\begin{minted}[bgcolor=bg]{packages/graphics.py:GLShaderLexer -x}
 layout(triangle_strip,max_vertices=4)out;//output primitive and max number of vertices
 //points, line_strip, triangle_strip
-	\end{minted}
-	}
+\end{minted}
+}
 	\end{itemize}
 \end{frame}
 
@@ -38,8 +40,8 @@ layout(triangle_strip,max_vertices=4)out;//output primitive and max number of ve
 		\includegraphics[width=9cm,keepaspectratio]{pics/gs.pdf}
 	\end{figure}
 
-	{\scriptsize
-	\begin{minted}[frame=lines]{glsl}
+{\scriptsize
+\begin{minted}[bgcolor=bg]{packages/graphics.py:GLShaderLexer -x}
 #version 430
 
 layout(points)in;
@@ -56,14 +58,14 @@ void main(){
   EmitVertex();
   EndPrimitive();
 }
-	\end{minted}
-	}
+\end{minted}
+}
 \end{frame}
 
 \begin{frame}[fragile]
 \frametitle{Geometry shader - fullscreen quad}
-	{\scriptsize
-	\begin{minted}[frame=lines]{glsl}
+{\scriptsize
+\begin{minted}[bgcolor=bg]{packages/graphics.py:GLShaderLexer -x}
 #version 430
 layout(points)in;
 layout(triangle_strip,max_vertices=4)out;
@@ -74,17 +76,17 @@ void main(){
   gl_Position=vec4(+1,+1,0,1);EmitVertex();
   EndPrimitive();
 }
-	\end{minted}
-	}
-	{\scriptsize
-	\begin{minted}[frame=lines]{c++}
+\end{minted}
+}
+{\scriptsize
+\begin{minted}[bgcolor=bg]{packages/c_cpp.py:CppLexer -x}
 glGenVertexArrays(1,&emptyVAO);
 //...
 glBindVertexArray(emptyVAO);//activate VAO
 glDrawArrays(GL_POINTS,0,1);
 glBindVertexArray(0);//deactivate VAO
-	\end{minted}
-	}
+\end{minted}
+}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -98,8 +100,8 @@ glBindVertexArray(0);//deactivate VAO
 \frametitle{Geometry shader - Shadow volumes}
   \begin{columns}[T]
     \begin{column}{.44\textwidth}
-	    {\tiny
-      	\begin{minted}[frame=lines]{glsl}
+{\tiny
+\begin{minted}[bgcolor=bg]{packages/graphics.py:GLShaderLexer -x}
 #version 330
 layout(triangles)in;
 layout(triangle_strip,max_vertices=10)out;
@@ -111,7 +113,8 @@ void main(){
   p[0]=gl_in[0].gl_Position;//triangle vertices
   p[1]=gl_in[1].gl_Position;
   p[2]=gl_in[2].gl_Position;
-  p[3]=vec4(gl_in[0].gl_Position.xyz*LP.w-LP.xyz,0);//triangle points projected to infinity
+  //triangle points projected to infinity
+  p[3]=vec4(gl_in[0].gl_Position.xyz*LP.w-LP.xyz,0);
   p[4]=vec4(gl_in[1].gl_Position.xyz*LP.w-LP.xyz,0);
   p[5]=vec4(gl_in[2].gl_Position.xyz*LP.w-LP.xyz,0);
   vec3 N=normalize(cross((p[1]-p[0]).xyz,(p[2]-p[0]).xyz));
@@ -132,8 +135,8 @@ void main(){
   gl_Position=MVP*p[3];EmitVertex();
   EndPrimitive();
 }
-    	\end{minted}
-   	}
+\end{minted}
+}
     \end{column}
     \begin{column}{.48\textwidth}
 	    \begin{figure}[h]

@@ -1,3 +1,5 @@
+\bluepage{Functionality Switching}
+
 \begin{frame}[fragile]
 \frametitle{Program branching, functionality switching}
   \begin{itemize}
@@ -16,8 +18,8 @@
   The fastest functionality switch can be performed directly inside shader.
   However, there is per-invocation overhead.
   For example, vertex shader has to evaluate condition for every vertex (thread divergence).
-    {\scriptsize
-    \begin{minted}[frame=lines]{glsl}
+{\scriptsize
+\begin{minted}[bgcolor=bg]{packages/graphics.py:GLShaderLexer -x}
 #version 430
 uniform uint method;
 void main(){
@@ -32,15 +34,15 @@ void main(){
       ...
   }
 }
-    \end{minted}
-    }
+\end{minted}
+}
 \end{frame}
 
 \begin{frame}[fragile]
 \frametitle{Functionality switching - subroutines}
   It is the second fastest functionality switch. It is function pointer switching.
-    {\tiny
-    \begin{minted}[frame=lines]{glsl}
+{\tiny
+\begin{minted}[bgcolor=bg]{packages/graphics.py:GLShaderLexer -x}
 #version 440
 
 layout(location=0)out vec4 fColor;
@@ -64,14 +66,14 @@ uniform uint rotateIndex=0;
 void main(){
   fColor=rotateColor[rotateIndex](getColor());
 }
-    \end{minted}
-    }
+\end{minted}
+}
 \end{frame}
 
 \begin{frame}[fragile]
 \frametitle{Functionality switching - subroutines}
-    {\tiny
-    \begin{minted}[frame=lines]{c++}
+{\tiny
+\begin{minted}[bgcolor=bg]{packages/c_cpp.py:CppLexer -x}
 //all subroutines
 GLuint sl0=glGetSubroutineIndex(program,GL_FRAGMENT_SHADER,"redColor");
 GLuint sl1=glGetSubroutineIndex(program,GL_FRAGMENT_SHADER,"greenColor");
@@ -92,8 +94,8 @@ sl[sul1+0]=sl5;
 sl[sul1+1]=sl2;
 sl[sul1+2]=sl3;
 glUniformSubroutinesuiv(GL_FRAGMENT_SHADER,4,sl);
-    \end{minted}
-    }
+\end{minted}
+}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -105,7 +107,7 @@ glUniformSubroutinesuiv(GL_FRAGMENT_SHADER,4,sl);
   \item It is usefull in situation where there is a lot of similar shader programs.
 \end{itemize}
 {\tiny
-  \begin{minted}[frame=lines]{c++}
+\begin{minted}[bgcolor=bg]{packages/c_cpp.py:CppLexer -x}
 GLuint vs,gs,fs;
 //This function creates shader program that contains only one shader stage.
 vs=glCreateShaderProgramv(GL_VERTEX_SHADER,1,&vstext);
@@ -120,7 +122,7 @@ glBindPipelines(pipeline);
 glUseProgramStages(pipeline,GL_VERTEX_SHADER_BIT,vs);
 glUseProgramStages(pipeline,GL_GEOMETRY_SHADER_BIT,program);//select geometry shader from shader program
 glUseProgramStages(pipeline,GL_FRAGMENT_SHADER_BIT,fs);
-  \end{minted}
+\end{minted}
 }
 \end{frame}
 

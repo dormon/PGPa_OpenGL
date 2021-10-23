@@ -1,3 +1,5 @@
+\bluepage{Image Load/Store}
+
 \begin{frame}
 \frametitle{Image Load/Store}
 	\begin{itemize}
@@ -21,8 +23,8 @@
 \begin{frame}[fragile]
 \frametitle{Image Load/Store - example}
   This fragment shader emulates stencil buffer:
-	{\scriptsize
-	\begin{minted}[frame=lines]{glsl}
+{\scriptsize
+\begin{minted}[bgcolor=bg]{packages/graphics.py:GLShaderLexer -x}
 #version 430
 
 layout(location=0)out vec4 fColor;
@@ -36,14 +38,14 @@ void main(){
   else
     imageAtomicAdd(myStencil,Coord,-1);
 }
-	\end{minted}
-	}
+\end{minted}
+}
 \end{frame}
 
 \begin{frame}[fragile]
 \frametitle{Image Load/Store - example}
-	{\scriptsize
-	\begin{minted}[frame=lines]{c++}
+{\scriptsize
+\begin{minted}[bgcolor=bg]{packages/c_cpp.py:CppLexer -x}
 //integer texture
 glGenTextures(1,&Image);
 glBindTexture(GL_TEXTURE_2D,Image);
@@ -55,7 +57,7 @@ glTexImage2D(GL_TEXTURE_2D,0,GL_R32I,Widht,Height,0,GL_RED_INTEGER,
 //bind one layer of the texture onto zeroth image unit
 glBindImageTexture(0,Image,0,GL_FALSE,0,GL_READ_WRITE,GL_R32I);
 
-  \end{minted}
-	}
+\end{minted}
+}
 \end{frame}
 

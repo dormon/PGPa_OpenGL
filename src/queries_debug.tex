@@ -1,3 +1,5 @@
+\bluepage{Queries, Debugging}
+
 \begin{frame}
 \frametitle{Queries}
 	\begin{itemize}
@@ -8,17 +10,17 @@
 	\item Conditional rendering - occlusion culling
 	\end{itemize}
 	{\scriptsize
-	\mint[frame=lines]{c++}|void glGenQueries(GLsizei n,GLuint * ids);|
-	\mint[frame=lines]{c++}|void glBeginQuery(GLenum target,GLuint id);|
-	\mint[frame=lines]{c++}|void glEndQuery(GLenum target,GLuint id);|
-	\mint[frame=lines]{c++}|void glGetQueryiv(GLenum target,GLuint id,GLint * params);|
+	\mint[bgcolor=bg]{packages/c_cpp.py:CppLexer -x}|void glGenQueries(GLsizei n,GLuint * ids);|
+	\mint[bgcolor=bg]{packages/c_cpp.py:CppLexer -x}|void glBeginQuery(GLenum target,GLuint id);|
+	\mint[bgcolor=bg]{packages/c_cpp.py:CppLexer -x}|void glEndQuery(GLenum target,GLuint id);|
+	\mint[bgcolor=bg]{packages/c_cpp.py:CppLexer -x}|void glGetQueryiv(GLenum target,GLuint id,GLint * params);|
 	}
 \end{frame}
 
 \begin{frame}[fragile]
 \frametitle{Queries - time example}
-	{\scriptsize
-	\begin{minted}[frame=lines]{c++}
+{\scriptsize
+\begin{minted}[bgcolor=bg]{packages/c_cpp.py:CppLexer -x}
 //init
 GLuint QueryTime;//query
 glGenQueries(1,&QueryTime);//nagenerujeme si ID query
@@ -38,14 +40,14 @@ glEndQuery(GL_TIME_ELAPSED);//vypneme query
 
 //get data from asychronous  query
 glGetQueryObjectuiv(QueryTime,GL_QUERY_RESULT_NO_WAIT,&QueryTimePassed);
-	\end{minted}
-	}
+\end{minted}
+}
 \end{frame}
 
 \begin{frame}[fragile]
 \frametitle{Queries - conditional rendering example}
-	{\scriptsize
-	\begin{minted}[frame=lines]{c++}
+{\scriptsize
+\begin{minted}[bgcolor=bg]{packages/c_cpp.py:CppLexer -x}
 //init
 GLuint QuerySample;//query
 glGenQueries(1,&QueryTime);//nagenerujeme si ID query
@@ -69,8 +71,8 @@ glBeginConditionalRender(QuerySample,GL_QUERY_NO_WAIT);
 //glDrawArrays(...);
 //...
 glEndConditionalRender();//end conditional rendering
-	\end{minted}
-	}
+\end{minted}
+}
 \end{frame}
 
 \begin{frame}[fragile]
@@ -79,32 +81,32 @@ glEndConditionalRender();//end conditional rendering
     \item Synchronization between OpenGL commands.
     \item Host synchronization, client synchronization.
   \end{itemize}
-	{\scriptsize
-	\begin{minted}[frame=lines]{c++}
+{\scriptsize
+\begin{minted}[bgcolor=bg]{packages/c_cpp.py:CppLexer -x}
 GLsync sync;//synchronization object
 glDispatchCompute(...);
 sync=glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE,0);
 glClientWaitSync(sync,0,GL_TIMEOUT_IGNORED);//CPU waits
 //...
 glDeleteSync(sync);
-	\end{minted}
-	}
-	{\scriptsize
-	\begin{minted}[frame=lines]{c++}
+\end{minted}
+}
+{\scriptsize
+\begin{minted}[bgcolor=bg]{packages/c_cpp.py:CppLexer -x}
 GLsync sync;//synchronization object
 glDispatchCompute(...);
 sync=glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE,0);
 glWaitSync(sync,0,GL_TIMEOUT_IGNORED);//GPU waits
 //...
 glDeleteSync(sync);
-	\end{minted}
-	}
-	{\scriptsize
-	\begin{minted}[frame=lines]{c++}
+\end{minted}
+}
+{\scriptsize
+\begin{minted}[bgcolor=bg]{packages/c_cpp.py:CppLexer -x}
 glFlush();
 glFinish();
- 	\end{minted}
-	}
+\end{minted}
+}
 \end{frame}
 
 
@@ -117,16 +119,17 @@ glFinish();
 	\item OpenGL debugging is supported in debug OpenGL context
 	\end{itemize}
 	{\scriptsize
-	\mint[frame=lines]{c++}|void glDebugMessageCallback(DEBUGPROC callback,void * userParam);|
-	\mint[frame=lines]{c++}|void glDebugMessageControl(GLenum,GLenum,GLenum,GLsizei,const GLuint*,...);|
-	\mint[frame=lines]{c++}|void glDebugMessageInsert(GLenum,GLenum,GLuint,GLenum,GLsizei,const char*);|
+	\mint[bgcolor=bg]{packages/c_cpp.py:CppLexer -x}|void glDebugMessageCallback(DEBUGPROC callback,void * userParam);|
+	\mint[bgcolor=bg]{packages/c_cpp.py:CppLexer -x}|void glDebugMessageControl(GLenum,GLenum,GLenum,GLsizei,const GLuint*,...);|
+	\mint[bgcolor=bg]{packages/c_cpp.py:CppLexer -x}|void glDebugMessageInsert(GLenum,GLenum,GLuint,GLenum,GLsizei,const char*);|
 	}
 \end{frame}
 
 \begin{frame}[fragile]
 \frametitle{Debugging - example}
-	{\scriptsize
-	\begin{minted}[frame=lines]{c++}
+Debug context initialization.
+{\scriptsize
+\begin{minted}[bgcolor=bg]{packages/c_cpp.py:CppLexer -x}
 //create window using SDL2
 SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER);//init. video
 SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION,4);
@@ -135,13 +138,14 @@ SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
   SDL_GL_CONTEXT_PROFILE_CORE);
 //set debug context
 SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS,SDL_GL_CONTEXT_DEBUG_FLAG);
-SDL_CreateWindow("OpenGL s debug kontextem",SDL_WINDOWPOS_CENTERED,
+SDL_CreateWindow("OpenGL with debug context",SDL_WINDOWPOS_CENTERED,
   SDL_WINDOWPOS_CENTERED,1024,768,
   SDL_WINDOW_OPENGL|SDL_WINDOW_SHOWN|SDL_WINDOW_FULLSCREEN);
 \end{minted}
 }
+Setting up a debug callback.
 {\scriptsize
-\begin{minted}[frame=lines]{c++}
+\begin{minted}[bgcolor=bg]{packages/c_cpp.py:CppLexer -x}
 //custom callback
 void MyDebug(GLenum Source,GLenum Type,GLuint Id,GLenum severity,
   GLsizei Length,const GLchar*Message,void*UserParam){
@@ -150,7 +154,7 @@ void MyDebug(GLenum Source,GLenum Type,GLuint Id,GLenum severity,
 
 glEnable(GL_DEBUG_OUTPUT);//enable debugging
 glDebugMessageCallback(MyDebug,NULL);//set callback
-	\end{minted}
-	}
+\end{minted}
+}
 \end{frame}
 

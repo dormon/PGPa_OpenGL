@@ -1,3 +1,5 @@
+\bluepage{Tessellation}
+
 \begin{frame}[fragile]
 \frametitle{OpenGL tessellation}
 	\begin{itemize}
@@ -12,12 +14,12 @@
 	\end{itemize}
 	\item There is one new primitive type - \textcolor{red}{GL\_PATCHES}
 	\end{itemize}
-  {\scriptsize
-	\begin{minted}[frame=lines]{c++}
+{\scriptsize
+\begin{minted}[bgcolor=bg]{packages/c_cpp.py:CppLexer -x}
 glPatchParameteri(GL_PATCH_VERTICES,10);//set number of vertices of patch to 10
 glDrawArrays(GL_PATCHES,0,200);//draw 20 patches (each is composed of 10 vertices)
-	\end{minted}
-  }
+\end{minted}
+}
 	\begin{figure}[h]
 	\includegraphics[width=10cm,keepaspectratio]{pics/tess_pipeline.pdf}
 	\end{figure}
@@ -52,8 +54,8 @@ glDrawArrays(GL_PATCHES,0,200);//draw 20 patches (each is composed of 10 vertice
 
 \begin{frame}[fragile]
 \frametitle{Control Shader - example}
-	{\scriptsize
-	\begin{minted}[frame=lines]{glsl}
+{\scriptsize
+\begin{minted}[bgcolor=bg]{packages/graphics.py:GLShaderLexer -x}
 #version 430
 
 // number of output vertices in output patch primitive ==
@@ -77,8 +79,8 @@ void main(){
     gl_TessLevelInner[1]=TessLevelInner[1];
   }
 }
-	\end{minted}
-	}
+\end{minted}
+}
 \end{frame}
 
 \begin{frame}
@@ -103,7 +105,7 @@ void main(){
 		\item Computation of coordinates of tessellated vertices
 	\end{itemize}
 	{\scriptsize
-	\begin{minted}[frame=lines]{glsl}
+\begin{minted}[bgcolor=bg]{packages/graphics.py:GLShaderLexer -x}
 #version 430
 
 layout(quads)in;
@@ -119,9 +121,9 @@ void main(){
 
 
 \begin{frame}[fragile]
-  \frametitle{Béziér surface - example}
-	{\scriptsize
-	\begin{minted}[frame=lines]{glsl}
+\frametitle{Béziér surface - example}
+{\scriptsize
+\begin{minted}[bgcolor=bg]{packages/graphics.py:GLShaderLexer -x}
 // Vertex shader	
 #version 430
 void main() {
@@ -142,13 +144,13 @@ void main() {
   }
 }
 \end{minted}
-	}
+}
 \end{frame}
 
 \begin{frame}[fragile]
-    \frametitle{Béziér surface - example}
-  	{\scriptsize
-		\begin{minted}[frame=lines]{glsl}
+  \frametitle{Béziér surface - example}
+{\scriptsize
+\begin{minted}[bgcolor=bg]{packages/graphics.py:GLShaderLexer -x}
 // Evaluation shader
 #version 430
 layout(quads, ccw) in;
@@ -168,14 +170,14 @@ void main() {
   }
   gl_Position = position;
 }
-  	\end{minted}
-		}
+\end{minted}
+}
 \end{frame}
 
 \begin{frame}[fragile]
 \frametitle{Communication between shader stages}
-	{\tiny
-	\begin{minted}[frame=lines]{glsl}
+{\tiny
+\begin{minted}[bgcolor=bg]{packages/graphics.py:GLShaderLexer -x}
 #version 430
 
 //output vertex shader attributes
@@ -256,8 +258,8 @@ $$
   \begin{columns}[T]
     \begin{column}{.44\textwidth}
       Control Shader
-  	{\tiny
-		\begin{minted}[frame=lines]{glsl}
+{\tiny
+\begin{minted}[bgcolor=bg]{packages/graphics.py:GLShaderLexer -x}
 #version 400
 layout(vertices=1)out;
 patch out mat4 K;
@@ -287,13 +289,13 @@ void main(){
   y=normalize(cross(z,x));
   K=mat4(vec4(x,0)*r,vec4(y,0)*r,vec4(z,0)*r,vec4(C,1));
 }
-  	\end{minted}
-		}
+\end{minted}
+}
     \end{column}
     \begin{column}{.48\textwidth}
       Evaluation Shader
-  	{\tiny
-		\begin{minted}[frame=lines]{glsl}
+{\tiny
+\begin{minted}[bgcolor=bg]{packages/graphics.py:GLShaderLexer -x}
 #version 400
 
 #define MY_PI 3.14159265359
@@ -310,8 +312,8 @@ void main(){
   vec4 PP=vec4(cos(Angle),sin(Angle),0,1);
   gl_Position=P*V*K*PP;
 }
-  	\end{minted}
-		}
+\end{minted}
+}
     \end{column}
   \end{columns}
 

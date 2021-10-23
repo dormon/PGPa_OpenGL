@@ -1,3 +1,5 @@
+\bluepage{Transform Feedback}
+
 \begin{frame}
 \frametitle{Transform feedback}
 	\begin{itemize}
@@ -19,8 +21,8 @@
 
 \begin{frame}[fragile]
 \frametitle{Transform feedback - example}
-	{\scriptsize
-	\begin{minted}[frame=lines]{c++}
+{\scriptsize
+\begin{minted}[bgcolor=bg]{packages/c_cpp.py:CppLexer -x}
 const char*Vayrings[]={"Out1", "Out2"};
 glTransformFeedbackVaryings(Program,2,Varyings,GL_SEPARATE_ATTRIBS);
 glLinkProgram(Program);
@@ -35,27 +37,27 @@ glEnable(GL_RASTERIZER_DISCARD);//nebudeme rasterizovat
 glBeginTransformFeedback(GL_TRIANGLES);
 glDrawArrays(...);
 glEndTransformFeedback();
-	\end{minted}
-	}
+\end{minted}
+}
 \end{frame}
 
 \begin{frame}[fragile]
 \frametitle{Transform Feedback - Inicialization}
   We have to link shader program with marked varyings.
 	c++:
-	{\scriptsize
-	\begin{minted}[frame=lines]{cpp}
+{\scriptsize
+\begin{minted}[bgcolor=bg]{packages/c_cpp.py:CppLexer -x}
 //list of variables that will be written into buffer(s).
 const char*ResetVaryings[]={"vPosition","vVelocity","vMass"};
 //set varyings and interleaving
 glTransformFeedbackVaryings(ResetProgram,3,ResetVaryings,GL_INTERLEAVED_ATTRIBS);
 //relink shader program
 glLinkProgram(ResetProgram);
-	\end{minted}
-	}
+\end{minted}
+}
 	glsl:
-	{\scriptsize
-	\begin{minted}[frame=lines]{glsl}
+{\scriptsize
+\begin{minted}[bgcolor=bg]{packages/graphics.py:GLShaderLexer -x}
 #version 330
 
 layout(location=0)out vec2  vPosition;//particle position
@@ -67,7 +69,7 @@ void main(){
   vVelocity = vec2(cos(VelAngle),sin(VelAngle))*VelSize;//init velocity
   vMass     = Noise(MassSeed+uint(gl_VertexID),MinMass,MaxMass);//init mass
 }
-	\end{minted}
-	}
+\end{minted}
+}
 \end{frame}
 
